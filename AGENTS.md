@@ -96,4 +96,4 @@ pkill -f "whisper-server"
 - **Idioma del código**: Todo el código en inglés (nombres de variables, funciones, clases, etc.)
 - **Nomenclatura**: kebab-case para nombres de archivos, snake_case para Python
 - **Idioma de comentarios**: Español
-- **Documentación**: Docstrings en inglés
+- **Documentación**: Docstrings en español
