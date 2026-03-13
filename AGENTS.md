@@ -88,5 +88,12 @@ pkill -f "whisper-server"
 ## Notas Importantes
 
 - La carpeta `inputs/` NO debe subirse a Git (contiene audios originales)
-- Solo trackear: código fuente, configuraciones, modelos (si es necesario), transcripciones JSON
+- Solo trackear: código fuente, configuraciones, modelos (si es necesario)
 - El servidor whisper debe estar corriendo antes de ejecutar el procesador
+
+## Convenciones de Código
+
+- **Idioma del código**: Todo el código en inglés (nombres de variables, funciones, clases, etc.)
+- **Nomenclatura**: kebab-case para nombres de archivos, snake_case para Python
+- **Idioma de comentarios**: Español
+- **Documentación**: Docstrings en inglés
