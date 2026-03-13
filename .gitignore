@@ -15,6 +15,9 @@ inputs/*.wav
 inputs/*.ogg
 inputs/*.flac
 inputs/*.log
+inputs/pending/
+inputs/processing/
+inputs/big_size/
 
 # Outputs
 transcriptions/*.json
