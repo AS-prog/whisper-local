@@ -281,28 +281,68 @@ pending → processing → completed
 - **Overlap:** 2 segundos al final de cada chunk
 - **Concatenación:** Unir transcripciones eliminando duplicados del overlap
 
-### Variables de Entorno (.env)
-```
-# Bots
-TELEGRAM_TOKEN=xxx
-DISCORD_TOKEN=xxx
+---
 
-# Whisper
-WHISPER_HOST=localhost
-WHISPER_PORT=8080
-WHISPER_MODEL=ggml-large-v3-turbo.bin
+## Agentes Disponibles
 
-# Límites
-MAX_FILE_SIZE_MB=40
-CHUNK_SIZE_MINUTES=10
-RATE_LIMIT_PER_HOUR=5
-MAX_CONCURRENT=10
+Este proyecto puede utilizar los siguientes agentes especializados ubicados en `~/.config/opencode/agentes/`:
 
-# Timeouts
-JOB_TIMEOUT_MINUTES=5
-LOCK_TIMEOUT_MINUTES=30
-WHISPER_HEALTH_RETRIES=5
-```
+### Agente Principal (Orquestador)
+
+| Agente | Modelo | Descripción | Ruta |
+|--------|--------|-------------|------|
+| **data-engineer** | kimi-k2.5 | Ingeniero de Datos Senior que coordina workflows completos de desarrollo, orquestando subagentes según necesidad | `~/.config/opencode/agentes/data-engineer.md` |
+
+### Subagentes Especializados
+
+| Agente | Modelo | Descripción | Ruta | Uso Recomendado |
+|--------|--------|-------------|------|-----------------|
+| **tdd-architect** | kimi-k2.5 | Diseña suites de pruebas con TDD, asegurando documentación detallada en cada caso de prueba | `~/.config/opencode/agentes/tdd-architect.md` | Fase 5: Testing - Diseñar tests unitarios e integración |
+| **python-coder** | qwen3-coder-next | Especialista en desarrollo Python que cumple estrictamente PEP 8 y estándares de tipado | `~/.config/opencode/agentes/python-coder.md` | Implementación de módulos src/*.py |
+| **sql-specialist** | qwen3-coder-plus | Especialista en SQL que diseña, optimiza y ejecuta queries de alta performance | `~/.config/opencode/agentes/sql-specialist.md` | Fase 0.4: Schema de Base de Datos |
+| **code-reviewer** | glm-5 | Revisa código Python buscando defectos, anti-patrones y oportunidades de mejora | `~/.config/opencode/agentes/code-reviewer.md` | Revisión final de cada módulo implementado |
+| **git-manager** | MiniMax-M2.5 | Especialista en control de versiones, gestión de ramas y mensajes de commit semánticos | `~/.config/opencode/agentes/git-manager.md` | Gestión de commits y ramas durante el desarrollo |
+| **config-guardian** | qwen3.5-plus | Agente especializado en automatización de PRs y monitoreo de repositorios | `~/.config/opencode/agentes/config-guardian.md` | Monitoreo de cambios en develop |
+
+### Flujo de Uso de Agentes por Fase
+
+**Fase 0 (Infraestructura):**
+- `data-engineer` → Análisis y coordinación
+- `sql-specialist` → Diseño del schema SQLite (Tarea 0.4)
+- `git-manager` → Commits iniciales
+
+**Fase 1 (Core Asíncrono):**
+- `data-engineer` → Orquestación
+- `tdd-architect` → Diseño de tests (Tarea 5.1)
+- `python-coder` → Implementación de database.py, job_queue.py, file_manager.py, audio_processor.py
+- `code-reviewer` → Revisión de cada módulo
+
+**Fase 2 (Worker y Cliente):**
+- `data-engineer` → Coordinación
+- `python-coder` → Implementación de whisper_client.py, worker.py
+- `code-reviewer` → Revisión
+
+**Fase 3 (Bots):**
+- `data-engineer` → Arquitectura de bots
+- `python-coder` → Implementación de telegram_bot.py, discord_bot.py, progress_notifier.py
+- `code-reviewer` → Revisión
+
+**Fase 4 (CLI y Tooling):**
+- `python-coder` → Implementación de cli.py, logger.py
+- `code-reviewer` → Revisión
+
+**Fase 5 (Testing y Optimización):**
+- `tdd-architect` → Diseño completo de suite de tests
+- `python-coder` → Implementación de tests/
+- `code-reviewer` → Revisión final de cobertura
+
+### Convenciones de Uso
+
+1. **Invocación**: Usar `@nombre-agente` para invocar un agente específico
+2. **Contexto**: Proporcionar el contexto completo del proyecto y la tarea actual
+3. **Secuencia**: Seguir el orden TDD → Implementación → Revisión
+4. **Commits**: Usar `git-manager` para todos los commits con mensajes semánticos
+5. **Documentación**: Todos los agentes generan salida en español
 
 ---
 
@@ -327,3 +367,11 @@ WHISPER_HEALTH_RETRIES=5
 - Balance entre UX y overhead de red
 - Telegram/Discord soportan edición de mensajes
 - No saturar al usuario ni la API
+
+---
+
+## Registro de Sesiones
+
+| Fecha | Archivo | Descripción |
+|-------|---------|-------------|
+| 2026-03-13 | [20260313.md](20260313.md) | Revisión y reestructuración del documento de tareas. Análisis de asignación de agentes. Separación en ficheros independientes por fases. |
