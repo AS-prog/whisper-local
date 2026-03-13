@@ -1,0 +1,24 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Modelos
+whisper.cpp/models/
+
+# Inputs (excepto processed)
+inputs/*.m4a
+inputs/*.mp3
+inputs/*.wav
+inputs/*.ogg
+inputs/*.flac
+inputs/*.log
+
+# Outputs
+transcriptions/*.json
+!transcriptions/README.md
+
+# OS
+.DS_Store
