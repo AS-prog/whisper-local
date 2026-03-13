@@ -161,6 +161,131 @@ Este proyecto puede utilizar los siguientes agentes especializados ubicados en `
 4. **Commits**: Usar `git-manager` para todos los commits con mensajes semánticos
 5. **Documentación**: Todos los agentes generan salida en español
 
+---
+
+## Protocolo de Inicio de Sesión
+
+Cada vez que se inicie una nueva sesión de trabajo, los agentes deben seguir este protocolo para establecer el contexto actual del proyecto:
+
+### Paso 1: Escaneo de Ramas Git
+
+El agente `@git-manager` (o el agente principal) debe:
+
+```bash
+# Ver estado actual del repositorio
+git status
+
+# Listar todas las ramas
+git branch -a
+
+# Ver el último commit en la rama actual
+git log -1 --oneline --format="%h %s (%cr) by %an"
+
+# Ver historial reciente (últimos 5 commits)
+git log -5 --oneline
+```
+
+**Checkpoint**: El hash del último commit (`99d1e74`) establece el punto de partida de la sesión.
+
+### Paso 2: Revisión de Documentación de Sesiones
+
+Después de obtener el checkpoint de Git, el agente debe:
+
+1. **Listar sesiones anteriores**:
+   ```bash
+   ls -la docs/*.md | grep -E '[0-9]{8}\.md'
+   ```
+
+2. **Identificar la sesión más reciente**:
+   - Buscar el archivo con fecha más reciente (formato: `YYYYMMDD.md`)
+   - Ejemplo: `docs/20260313.md`
+
+3. **Leer la sesión más reciente** para entender:
+   - Qué se hizo en la sesión anterior
+   - Qué fase del proyecto está activa
+   - Qué tareas están pendientes
+   - Qué decisiones se tomaron
+   - Próximos pasos recomendados
+
+### Paso 3: Determinar Estado del Proyecto
+
+Con la información de Git y la sesión anterior, el agente debe poder responder:
+
+**"¿En qué estado está el proyecto?"**
+
+Template de respuesta:
+
+```
+📊 ESTADO DEL PROYECTO - whisper-local v2.1
+═══════════════════════════════════════════════
+
+🔄 Checkpoint Git: 99d1e74
+📅 Última sesión: docs/20260313.md (2026-03-13)
+🌿 Rama actual: main
+
+📋 FASES COMPLETADAS:
+   ⏳ Fase 0: Infraestructura (0/4 tareas)
+   ⏳ Fase 1: Core Asíncrono (0/4 tareas)
+   ⏳ Fase 2: Worker y Cliente (0/3 tareas)
+   ⏳ Fase 3: Bots (0/3 tareas)
+   ⏳ Fase 4: CLI (0/3 tareas)
+   ⏳ Fase 5: Testing (0/4 tareas)
+
+🎯 FASE ACTIVA: Ninguna (en planificación)
+📝 TAREAS PENDIENTES: 21 totales
+⏱️  TIEMPO ESTIMADO RESTANTE: ~55 horas
+
+📁 ESTRUCTURA:
+   ✅ Documentación de tareas separada por fases
+   ✅ Asignación de agentes completada
+   ⏳ Implementación de código: pendiente
+
+💡 PRÓXIMO PASO RECOMENDADO:
+   Iniciar Fase 0 con @sql-specialist → Tarea 0.4 (Schema DB)
+```
+
+### Paso 4: Sincronización de Contexto
+
+Antes de comenzar cualquier tarea:
+
+1. **Confirmar** con el usuario el estado detectado
+2. **Preguntar** si hay cambios no commiteados que deban incluirse
+3. **Verificar** si se debe continuar desde el último punto o cambiar de rama
+4. **Actualizar** el archivo de sesiones si se detectan discrepancias
+
+### Ejemplo de Inicio de Sesión
+
+```
+Agente: Voy a escanear el estado actual del proyecto...
+
+[Ejecutando git status...]
+[Ejecutando git log...]
+[Leyendo docs/20260313.md...]
+
+✅ Checkpoint establecido: 99d1e74
+✅ Sesión anterior: 2026-03-13 (Restructuración de documentación)
+
+📊 Estado detectado:
+   - Rama: main
+   - 21 tareas documentadas en 6 fases
+   - Ninguna tarea iniciada
+   - Documentación completa y estructurada
+
+¿En qué estado está el proyecto?
+→ En fase de planificación, listo para iniciar desarrollo.
+
+¿Desea comenzar con la Fase 0 (Infraestructura)?
+```
+
+### Convención de Nomenclatura
+
+- **Checkpoint**: Hash corto del último commit (ej: `99d1e74`)
+- **Sesión**: Archivo `docs/YYYYMMDD.md`
+- **Estado**: Una de [Planificación | En desarrollo | En testing | Completado]
+- **Fase activa**: La fase con tareas en progreso
+
+---
+
 ### Análisis para Asignación de Modelos
 
 **Modelos Disponibles:**
