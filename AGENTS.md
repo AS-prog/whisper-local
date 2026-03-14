@@ -120,6 +120,7 @@ Este proyecto puede utilizar los siguientes agentes especializados ubicados en `
 | **code-reviewer** | glm-5 | Revisa código Python buscando defectos, anti-patrones y oportunidades de mejora | `~/.config/opencode/agentes/code-reviewer.md` | Revisión final de cada módulo implementado |
 | **git-manager** | MiniMax-M2.5 | Especialista en control de versiones, gestión de ramas y mensajes de commit semánticos | `~/.config/opencode/agentes/git-manager.md` | Gestión de commits y ramas durante el desarrollo |
 | **config-guardian** | qwen3.5-plus | Agente especializado en automatización de PRs y monitoreo de repositorios | `~/.config/opencode/agentes/config-guardian.md` | Monitoreo de cambios en develop |
+| **phase1-auditor** | kimi-k2.5 | Auditor independiente que verifica implementaciones de Fase 1 contra la spec en frío (sin haber visto el código del implementador) | `~/.config/opencode/agents/phase1-auditor.md` | Verificación de src/database.py, job_queue.py, file_manager.py, audio_processor.py |
 
 ### Flujo de Uso de Agentes por Fase
 
@@ -132,6 +133,7 @@ Este proyecto puede utilizar los siguientes agentes especializados ubicados en `
 - `data-engineer` → Orquestación
 - `tdd-architect` → Diseño de tests (Tarea 5.1)
 - `python-coder` → Implementación de database.py, job_queue.py, file_manager.py, audio_processor.py
+- `phase1-auditor` → Auditoría en frío post-implementación (lee spec → diseña escenarios → lee código → ejecuta → informa)
 - `code-reviewer` → Revisión de cada módulo
 
 **Fase 2 (Worker y Cliente):**
@@ -153,11 +155,43 @@ Este proyecto puede utilizar los siguientes agentes especializados ubicados en `
 - `python-coder` → Implementación de tests/
 - `code-reviewer` → Revisión final de cobertura
 
+### Agente Auditor: @phase1-auditor
+
+Agente especializado en **verificación independiente** de la implementación de Fase 1. Su rasgo distintivo es la **prueba en frío**: genera sus escenarios de prueba leyendo únicamente la especificación, sin haber consultado el código del implementador.
+
+**Ruta:** `~/.config/opencode/agents/phase1-auditor.md`
+**Modelo:** kimi-k2.5 (thinking habilitado)
+**Permisos:** Solo lectura + bash (no puede escribir ni editar archivos del proyecto)
+
+**Protocolo de 4 fases:**
+
+| Fase | Acción | Restricción |
+|------|--------|-------------|
+| **A — Lectura de Spec** | Lee `docs/tasks/phase-1-core.md` y documenta contratos por módulo | **Prohibido leer `src/`** |
+| **B — Diseño en Frío** | Escribe script de verificación en `/tmp/audit_phase1_<TS>.py` basado solo en la spec | **Prohibido leer `src/`** |
+| **C — Ejecución** | Lee `src/*.py`, ajusta imports, ejecuta el script | Primera lectura de código |
+| **D — Informe** | Emite veredicto `APROBADO / REQUIERE CORRECCIONES` con lista de desviaciones | — |
+
+**Módulos auditados:** `database.py`, `job_queue.py`, `file_manager.py`, `audio_processor.py`
+**Script de referencia:** `tests/audit/cold_test_phase1.py` (25+ assertions derivadas de la spec)
+
+**Invocación:**
+```
+@phase1-auditor Audita la implementación de Fase 1.
+Spec: docs/tasks/phase-1-core.md
+Código: src/database.py, src/job_queue.py, src/file_manager.py, src/audio_processor.py
+Proyecto: /path/to/whisper-local
+```
+
+**Documentación extendida:** [`docs/agents/phase1-auditor.md`](docs/agents/phase1-auditor.md)
+
+---
+
 ### Convenciones de Uso de Agentes
 
 1. **Invocación**: Usar `@nombre-agente` para invocar un agente específico
 2. **Contexto**: Proporcionar el contexto completo del proyecto y la tarea actual
-3. **Secuencia**: Seguir el orden TDD → Implementación → Revisión
+3. **Secuencia**: Seguir el orden TDD → Implementación → Auditoría → Revisión
 4. **Commits**: Usar `git-manager` para todos los commits con mensajes semánticos
 5. **Documentación**: Todos los agentes generan salida en español
 

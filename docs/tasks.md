@@ -51,6 +51,9 @@
 - **5.1** Tests Unitarios (diseño)
 - **5.2** Tests Integración
 
+### @phase1-auditor
+- **1.1–1.4** Auditoría en frío post-implementación (todos los módulos de Fase 1)
+
 ### @code-reviewer
 - Revisión de todos los módulos implementados
 
@@ -68,6 +71,7 @@ FASE 0: Infraestructura
 FASE 1: Core Asíncrono
 ├── @tdd-architect → Diseñar tests
 ├── @python-coder → Database, Queue, FileManager, AudioProcessor
+├── @phase1-auditor → Auditoría en frío (spec → escenarios → ejecución → informe)
 └── @code-reviewer → Revisión
 
 FASE 2: Worker y Cliente
@@ -169,6 +173,7 @@ Este proyecto utiliza el [Sistema de Orquestación de Agentes](/Users/andresrsot
 | **@code-reviewer** | Subagent | Revisión de código | glm-5 |
 | **@git-manager** | Subagent | Control de versiones | MiniMax-M2.5 |
 | **@config-guardian** | Subagent | Automatización de PRs | qwen3.5-plus |
+| **@phase1-auditor** | Subagent | Auditoría independiente en frío — Fase 1 | kimi-k2.5 |
 
 ### Convenciones de Uso
 
