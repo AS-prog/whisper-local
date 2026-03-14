@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  whisper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whisper-server
+    ports:
+      - "${WHISPER_PORT:-8080}:8080"
+    volumes:
+      - ./whisper.cpp/models:/app/models:ro
+      - ./inputs:/app/inputs:ro
+      - ./transcriptions:/app/transcriptions
+    environment:
+      - WHISPER_MODEL=${WHISPER_MODEL:-ggml-large-v3-turbo.bin}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    networks:
+      - whisper-network
+
+networks:
+  whisper-network:
+    driver: bridge

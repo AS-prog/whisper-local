@@ -5,6 +5,9 @@ __pycache__/
 *.pyo
 *.egg-info/
 
+# Entorno y Secrets
+.env
+
 # Modelos
 whisper.cpp/models/
 
@@ -19,9 +22,29 @@ inputs/pending/
 inputs/processing/
 inputs/big_size/
 
+# Base de datos
+*.db
+*.db-journal
+
+# Cache
+transcriptions/cache/
+
 # Outputs
 transcriptions/*.json
 !transcriptions/README.md
 
+# Logs
+logs/
+*.log
+
 # OS
 .DS_Store
+
+# Archivos temporales
+*.tmp
+*.temp
+*.lock
+
+# Backup
+backup/
+*.bak
