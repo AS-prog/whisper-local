@@ -620,6 +620,53 @@ class FileManager:
                     logger.error(f"Error al leer directorio {dir_name}: {e}")
         
         return stats
+    
+    def save_transcription_json(
+        self,
+        file_path: str,
+        transcription: str,
+        file_hash: str,
+        cached: bool = False
+    ) -> str:
+        """
+        Guarda la transcripción en un archivo JSON.
+        
+        Args:
+            file_path: Ruta al archivo de audio procesado
+            transcription: Texto de la transcripción
+            file_hash: Hash del archivo para referen cia
+            cached: Si la transcripción provino del cache (default: False)
+            
+        Returns:
+            Ruta al archivo JSON guardado
+        """
+        import json
+        
+        path = Path(file_path).resolve()
+        audio_name = path.stem
+        transcriptions_dir = path.parent.parent / 'transcriptions'
+        
+        # Crear carpeta transcriptions si no existe
+        transcriptions_dir.mkdir(parents=True, exist_ok=True)
+        
+        json_path = transcriptions_dir / f"{audio_name}.json"
+        
+        # Preparar datos
+        result = {
+            'file_path': str(path),
+            'file_hash': file_hash,
+            'transcription': transcription,
+            'created_at': datetime.now().isoformat(),
+            'cached': cached,
+        }
+        
+        # Guardar JSON
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=2)
+        
+        logger.info(f"Transcripción guardada en: {json_path}")
+        
+        return str(json_path)
 
 
 # Funciones de utilidad

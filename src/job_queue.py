@@ -376,6 +376,27 @@ class JobQueue:
 
         return len(callbacks) > 0
 
+    def update_job_status(
+        self,
+        job_id: int,
+        status: str,
+        error_message: Optional[str] = None,
+        retry_count: Optional[int] = None
+    ) -> bool:
+        """
+        Actualiza el estado de un job en la base de datos.
+        
+        Args:
+            job_id: ID del job a actualizar
+            status: Nuevo estado ('pending', 'processing', 'completed', 'failed')
+            error_message: Mensaje de error si el status es 'failed'
+            retry_count: Contador de reintentos (opcional)
+        
+        Returns:
+            True si la actualización fue exitosa
+        """
+        return self.database.update_job_status(job_id, status, error_message, retry_count)
+
     def process_retries(self) -> List[Dict]:
         """
         Procesa jobs fallidos que están listos para reintento.
