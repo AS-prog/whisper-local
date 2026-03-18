@@ -210,7 +210,7 @@ class JobQueue:
                 error_message = error or 'Error desconocido'
 
                 # Actualizar retry_count y status
-                self.database.update_job_status(job_id, status, error_message)
+                self.database.update_job_status(job_id, status, error_message, retry_count)
 
                 if status == 'pending':
                     #_programar retry future
@@ -508,8 +508,6 @@ class JobQueue:
                 status_name = row['status']
                 if status_name in status_counts:
                     status_counts[status_name] = row['count']
-
-            conn.close()
         except Exception as e:
             logger.error(f"Error al obtener counts por status: {e}")
 

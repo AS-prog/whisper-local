@@ -310,15 +310,14 @@ if _jq_import_ok and _db_import_ok:
                 check("job_queue.py", "dequeue() sin excepción", False, str(e))
 
         # 1.2.3 reintentos — retry_count >= 3 → failed permanente
+        # Crear un job específico para probar reintentos (aislado de otros jobs)
         try:
             jid_retry = jq.enqueue("/tmp/retry_audio.wav", user_id="u3", platform="cli")
-            # Simular que ya tiene retry_count = 2 (próximo fallo → >= 3 → failed)
+            # Simular 3 fallos consecutivos (sin dequeue, directamente con complete_job)
             # La spec dice: si retry_count < 3, volver a pending; si >= 3, failed permanente
-            # Fallamos 3 veces consecutivas para llegar a failed
-            for _ in range(3):
-                deq = jq.dequeue("pending")
-                if deq and deq.get("id") == jid_retry:
-                    jq.complete_job(jid_retry, success=False, error="error de prueba")
+            jq.complete_job(jid_retry, success=False, error="error de prueba 1")
+            jq.complete_job(jid_retry, success=False, error="error de prueba 2")
+            jq.complete_job(jid_retry, success=False, error="error de prueba 3")
             job_final = jq_db.get_job(jid_retry)
             if job_final:
                 check("job_queue.py", "retry_count>=3 → status 'failed' permanente",
@@ -339,16 +338,23 @@ if _jq_import_ok and _db_import_ok:
             check("job_queue.py", "get_queue_status() sin excepción", False, str(e))
 
         # 1.2.4 callbacks de progreso
+        # Crear un job fresco para probar callbacks (aislado de otros tests)
         try:
             callback_llamado = []
             def mi_callback(job_id, progress):
                 callback_llamado.append((job_id, progress))
 
-            jq.register_progress_callback(jid2, mi_callback)
-            jq.notify_progress(jid2, 50)
-            check("job_queue.py", "register_progress_callback + notify_progress funcionan",
-                  len(callback_llamado) == 1 and callback_llamado[0][1] == 50,
-                  f"llamadas recibidas: {callback_llamado}")
+            # Crear un job dedicado para este test
+            jid_callback = jq.enqueue("/tmp/callback_test.wav", user_id="u4", platform="cli")
+            if jid_callback and jid_callback > 0:
+                jq.register_progress_callback(jid_callback, mi_callback)
+                jq.notify_progress(jid_callback, 50)
+                check("job_queue.py", "register_progress_callback + notify_progress funcionan",
+                      len(callback_llamado) == 1 and callback_llamado[0][1] == 50,
+                      f"llamadas recibidas: {callback_llamado}")
+            else:
+                check("job_queue.py", "register_progress_callback + notify_progress funcionan", False,
+                      f"enqueue retornó {jid_callback}")
         except Exception as e:
             check("job_queue.py", "callbacks de progreso sin excepción", False, str(e))
 

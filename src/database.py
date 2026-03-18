@@ -175,7 +175,11 @@ class Database:
             return None
 
     def update_job_status(
-        self, job_id: int, status: str, error_message: Optional[str] = None
+        self,
+        job_id: int,
+        status: str,
+        error_message: Optional[str] = None,
+        retry_count: Optional[int] = None
     ) -> bool:
         """
         Actualiza el estado de un job.
@@ -184,6 +188,7 @@ class Database:
             job_id: ID del job a actualizar
             status: Nuevo estado ('pending', 'processing', 'completed', 'failed')
             error_message: Mensaje de error si el status es 'failed'
+            retry_count: Contador de reintentos (opcional)
 
         Returns:
             bool: True si la actualización fue exitosa
@@ -191,19 +196,30 @@ class Database:
         try:
             conn = self.get_connection()
             cursor = conn.cursor()
-            cursor.execute(
-                """
-                UPDATE jobs
-                SET status = ?, updated_at = ?
-                %s
-                WHERE id = ?
-                """
-                % (", error_message = ?" if error_message else ""),
-                (
-                    *(status, datetime.now())
-                    + ((error_message, job_id,) if error_message else (job_id,)),
-                ),
-            )
+            
+            if retry_count is not None:
+                cursor.execute(
+                    """
+                    UPDATE jobs
+                    SET status = ?, updated_at = ?, error_message = ?, retry_count = ?
+                    WHERE id = ?
+                    """,
+                    (status, datetime.now(), error_message, retry_count, job_id),
+                )
+            else:
+                cursor.execute(
+                    """
+                    UPDATE jobs
+                    SET status = ?, updated_at = ?
+                    %s
+                    WHERE id = ?
+                    """
+                    % (", error_message = ?" if error_message else ""),
+                    (
+                        *(status, datetime.now())
+                        + ((error_message, job_id,) if error_message else (job_id,)),
+                    ),
+                )
             conn.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:

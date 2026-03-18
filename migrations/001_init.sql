@@ -30,7 +30,8 @@ CREATE TABLE jobs (
     platform TEXT CHECK(platform IN ('telegram', 'discord', 'cli')),  -- Plataforma de origen
     progress INTEGER DEFAULT 0,                     -- Progreso de transcripción (0-100)
     chunks_total INTEGER DEFAULT 1,                 -- Número total de segmentos si se divide el archivo
-    chunks_completed INTEGER DEFAULT 0              -- Número de segmentos completados
+    chunks_completed INTEGER DEFAULT 0,             -- Número de segmentos completados
+    updated_at TIMESTAMP                            -- Última actualización del job
 );
 
 -- ============================================================================
